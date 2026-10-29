@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Antonio</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">A</span>
+      <div>
+        <div class="name">Antonio</div>
+        <div class="status" id="status"><span class="dot"></span><span id="status-text">Conectando…</span></div>
+      </div>
+    </div>
+    <div class="actions">
+      <button class="icon" id="btn-preview" title="Ver a Área do Claude" aria-pressed="false">
+        <svg viewBox="0 0 24 24"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+      <button class="icon" id="btn-new" title="Nova conversa">
+        <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+      <button class="icon" id="btn-settings" title="Configurações e histórico">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
+      </button>
+      <button class="icon danger" id="btn-panic" title="Parar tudo (Super+Esc)">
+        <svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <section class="preview" id="preview" hidden>
+    <div class="preview-head">
+      <span>Área do Claude</span>
+      <span class="muted">mouse e teclado próprios</span>
+    </div>
+    <img id="preview-img" alt="Tela da Área do Claude">
+    <div class="preview-empty muted" id="preview-empty" hidden>A Área do Claude não está ativa.</div>
+  </section>
+
+  <main class="messages" id="messages" aria-live="polite">
+    <div class="empty" id="empty">
+      <span class="logo big" aria-hidden="true">A</span>
+      <h1>Oi! Sou o Antonio.</h1>
+      <p>Posso usar programas na minha própria tela, sem mexer no seu mouse, e mudar o sistema com a sua aprovação.</p>
+      <div class="suggestions">
+        <button data-prompt="Como está o sistema? Algum serviço com problema?">Como está o sistema?</button>
+        <button data-prompt="Instale o VLC e o GIMP.">Instalar VLC e GIMP</button>
+        <button data-prompt="Abra o navegador na sua tela e pesquise a previsão do tempo de hoje.">Pesquisar no navegador</button>
+      </div>
+    </div>
+  </main>
+
+  <section class="pending" id="pending"></section>
+
+  <form class="composer" id="composer">
+    <div class="attachments" id="attachments"></div>
+    <textarea id="input" rows="1" placeholder="Pergunte ou peça algo…" autocomplete="off"></textarea>
+    <div class="composer-row">
+      <label class="icon" title="Anexar imagem">
+        <input type="file" id="file" accept="image/*" multiple hidden>
+        <svg viewBox="0 0 24 24"><path d="m21.4 11.1-9.2 9.2a6 6 0 0 1-8.5-8.5l9.2-9.2a4 4 0 0 1 5.7 5.7l-9.2 9.2a2 2 0 0 1-2.8-2.8l8.5-8.5"/></svg>
+      </label>
+      <span class="hint muted">Enter envia · Shift+Enter quebra linha</span>
+      <button type="submit" class="send" id="send" title="Enviar">
+        <svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
+  </form>
+
+  <aside class="drawer" id="drawer" hidden>
+    <div class="drawer-head">
+      <h2>Configurações</h2>
+      <button class="icon" id="drawer-close" title="Fechar"><svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+    </div>
+    <div class="drawer-body">
+      <h3>Conta Claude</h3>
+      <p class="muted">Use a sua assinatura do Claude (login do Claude Code) ou uma chave de API.</p>
+      <button class="btn" id="btn-login">Entrar com a conta Claude</button>
+      <div class="field">
+        <input type="password" id="api-key" placeholder="sk-ant-… (opcional)" autocomplete="off">
+        <button class="btn" id="btn-save-key">Salvar chave</button>
+      </div>
+      <p class="muted small" id="info"></p>
+      <h3>Atividade recente</h3>
+      <ol class="audit" id="audit"></ol>
+    </div>
+  </aside>
+
+  <script src="markdown.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

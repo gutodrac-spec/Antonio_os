@@ -1,0 +1,26 @@
+{
+  "name": "antonio-agentd",
+  "version": "0.1.0",
+  "description": "Antonio OS agent daemon: hosts Claude (Claude Agent SDK) for the sidebar, with desktop and system tools",
+  "type": "module",
+  "private": true,
+  "bin": {
+    "antonio-agentd": "dist/main.js"
+  },
+  "scripts": {
+    "build": "tsc -p .",
+    "start": "node dist/main.js",
+    "test": "node --test dist/test/*.test.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/claude-agent-sdk": "^0.3.312",
+    "ws": "^8.22.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/ws": "^8.18.2",
+    "typescript": "^5.9.3"
+  }
+}

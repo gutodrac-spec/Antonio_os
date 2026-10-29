@@ -1,0 +1,14 @@
+name: CI
+on:
+  push:
+  pull_request:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/nix-installer-action@v16
+      - name: Pacotes e testes
+        run: nix build -L .#checks.x86_64-linux.agentd .#checks.x86_64-linux.sidebar
+      - name: Sistema da VM
+        run: nix build -L .#checks.x86_64-linux.vm-toplevel

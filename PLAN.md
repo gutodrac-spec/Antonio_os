@@ -8,6 +8,27 @@ Sistema operacional baseado em Linux com o Claude integrado à área de trabalho
 
 ---
 
+## 0. Estado da implementação (v0.1)
+
+O que já existe neste repositório (fases 0 a 3 do plano, em versão inicial):
+
+| Parte | Onde | Estado |
+|---|---|---|
+| Flake NixOS com VM e ISO | `flake.nix`, `nix/` | Avalia e compila (`nix build .#vm`, `.#iso`) |
+| Serviço do agente (Claude Agent SDK) | `agentd/` | Compila; testes unitários passam |
+| Barra lateral (GTK layer-shell + WebKit) | `sidebar/` | UI testada no Chromium; janela GTK não renderizou no container de desenvolvimento (WebKit) |
+| Área do Claude (compositor separado) | `nix/packages/claude-desktop.nix` | Testada: mouse/teclado do Claude e do usuário em paralelo sem vazamento |
+| Mudanças no sistema com reversão automática | `agentd/src/system.ts`, `nix/modules/antonio.nix` | Ciclo aprovar → testar → confirmar/reverter testado em modo de teste |
+
+Ajustes em relação ao plano original, decididos na implementação:
+
+- **Área do Claude = um segundo Sway headless** (outro `WAYLAND_DISPLAY`), em vez de uma saída extra no mesmo compositor. O isolamento fica total: o Claude não tem como mover o seu cursor nem roubar o seu foco. Consequência: "passar uma janela" entre as áreas vira "abrir o programa na sua tela" (`open_for_user`).
+- **Barra lateral em GTK3 + gtk-layer-shell + WebKitGTK** (Python), em vez de Tauri: o layer-shell é suportado nativamente, sem patch.
+- **Ferramentas MCP em TypeScript, no mesmo processo** do agente (`createSdkMcpServer`), em vez de servidores Rust separados.
+- **Sem helper root próprio**: três unidades systemd fixas (`antonio-apply`, `antonio-confirm`, `antonio-revert`) liberadas por uma regra polkit só para o grupo `antonio`, mais um timer de reversão que roda mesmo se o agente morrer.
+
+---
+
 ## 1. Decisões principais
 
 | Tema | Decisão | Motivo |
@@ -81,14 +102,15 @@ O mouse/teclado do Linux são normalmente únicos por sessão. A solução é da
 
 ### 3.1 Modo padrão — "Área do Claude" (tela invisível separada)
 
-- O compositor cria uma **saída headless** (monitor virtual, ex.: 1920×1080) que não aparece nos seus monitores.
-- O Claude recebe um **seat separado** (`seat-claude`) com ponteiro e teclado **virtuais** (protocolos `zwlr_virtual_pointer_v1` e `zwp_virtual_keyboard_v1`, ou `libei`).
+- Um **segundo compositor Sway, headless** (monitor virtual de 1280×800), roda ao lado do seu e não aparece nos seus monitores.
+- O Claude usa o **seat próprio** desse compositor, com ponteiro controlado via IPC do Sway (`seat seat0 cursor …`) e teclado **virtual** (`zwp_virtual_keyboard_v1`, via `wtype`).
 - Apps que o Claude abre são lançados nessa saída. Foco, cursor e digitação ficam só lá → **seu cursor e seu foco nunca se movem**.
 - A tela do Claude é capturada (protocolo `wlr-screencopy` / PipeWire) e:
   - enviada ao modelo como screenshot quando ele precisa "ver";
   - exibida ao vivo, em miniatura, na barra lateral para você acompanhar.
 - **Mesmos programas, mesmos arquivos**: os apps rodam com o seu usuário, então o Claude usa seu navegador, seus documentos etc.
-- **Passar janelas**: como é o mesmo compositor, uma janela pode ser movida da Área do Claude para sua área de trabalho (e vice-versa) com um clique — "trazer para mim" / "entregar ao Claude".
+- **Entregar resultados**: como são compositores diferentes, uma janela não muda de tela; o Claude abre o arquivo/programa na sua tela (`open_for_user`, com aprovação). Mover janelas vivas entre as áreas fica para o compositor próprio da fase 5.
+- **Perfis separados de navegador**: o Claude usa um perfil próprio do Firefox para não brigar com a instância que você está usando.
 
 ### 3.2 Modo "lado a lado" (fase posterior)
 
