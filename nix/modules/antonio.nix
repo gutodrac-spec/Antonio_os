@@ -197,7 +197,10 @@ in
       serviceConfig.Type = "oneshot";
       script = ''
         systemctl stop antonio-revert.timer || true
-        /nix/var/nix/profiles/system/bin/switch-to-configuration test
+        # The last confirmed system; a VM booted straight from the store has no profile yet.
+        target=/nix/var/nix/profiles/system
+        [ -e "$target" ] || target=/run/booted-system
+        "$target/bin/switch-to-configuration" test
       '';
     };
 

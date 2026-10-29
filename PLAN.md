@@ -14,11 +14,13 @@ O que já existe neste repositório (fases 0 a 3 do plano, em versão inicial):
 
 | Parte | Onde | Estado |
 |---|---|---|
-| Flake NixOS com VM e ISO | `flake.nix`, `nix/` | Avalia e compila (`nix build .#vm`, `.#iso`) |
-| Serviço do agente (Claude Agent SDK) | `agentd/` | Compila; testes unitários passam |
-| Barra lateral (GTK layer-shell + WebKit) | `sidebar/` | UI testada no Chromium; janela GTK não renderizou no container de desenvolvimento (WebKit) |
-| Área do Claude (compositor separado) | `nix/packages/claude-desktop.nix` | Testada: mouse/teclado do Claude e do usuário em paralelo sem vazamento |
-| Mudanças no sistema com reversão automática | `agentd/src/system.ts`, `nix/modules/antonio.nix` | Ciclo aprovar → testar → confirmar/reverter testado em modo de teste |
+| Flake NixOS com VM e ISO | `flake.nix`, `nix/` | A VM compila e inicia: login automático, Sway, serviços e `/etc/antonio` criado no primeiro boot |
+| Serviço do agente (Claude Agent SDK) | `agentd/` | Compila; 11 testes passam; sobe na VM |
+| Barra lateral (GTK layer-shell + WebKit) | `sidebar/` | Aparece na VM, fixa à direita, reservando espaço na tela |
+| Área do Claude (compositor separado) | `nix/packages/claude-desktop.nix` | Testada: Claude e usuário digitando ao mesmo tempo sem vazar um para o outro; prévia ao vivo na VM |
+| Mudanças no sistema com reversão automática | `agentd/src/system.ts`, `nix/modules/antonio.nix` | Ciclo aprovar → testar → confirmar/reverter testado em modo de teste; regra polkit testada na VM |
+
+Ainda não testado de ponta a ponta: uma conversa real com o Claude (precisa de login na conta) e um `nixos-rebuild` dentro da VM (o ambiente de desenvolvimento não tinha rede para a VM).
 
 Ajustes em relação ao plano original, decididos na implementação:
 
