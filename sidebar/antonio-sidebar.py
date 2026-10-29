@@ -47,6 +47,7 @@ def read_token(timeout=30.0):
 class Sidebar(Gtk.Window):
     def __init__(self, token):
         super().__init__(title="Antonio")
+        Gtk.Settings.get_default().set_property("gtk-application-prefer-dark-theme", True)
         self.set_default_size(WIDTH, -1)
         if GtkLayerShell.is_supported():
             GtkLayerShell.init_for_window(self)
@@ -64,6 +65,8 @@ class Sidebar(Gtk.Window):
         settings.set_enable_developer_extras(os.environ.get("ANTONIO_DEVTOOLS") == "1")
         settings.set_hardware_acceleration_policy(WebKit2.HardwareAccelerationPolicy.NEVER)
         self.view = WebKit2.WebView.new_with_settings(settings)
+        # A layer surface takes its width from the content; a WebView has no natural size.
+        self.view.set_size_request(WIDTH, -1)
         self.view.connect("decide-policy", self.on_policy)
         self.view.load_uri("%s/?token=%s" % (BASE_URL, token))
         self.add(self.view)

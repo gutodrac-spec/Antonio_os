@@ -6,6 +6,7 @@ let
   inherit (antonioPkgs) antonio-agentd antonio-sidebar antonio-claude-desktop antonio-ctl;
 
   repo = "/etc/antonio";
+  userPath = [ "/run/wrappers" "/etc/profiles/per-user/${cfg.user}" "/run/current-system/sw" ];
   flakeRef = "path:${repo}#antonio";
   rebuildPath = [ config.nix.package pkgs.git pkgs.nixos-rebuild-ng pkgs.coreutils pkgs.systemd ];
 
@@ -89,7 +90,7 @@ in
     programs.sway = {
       enable = true;
       wrapperFeatures.gtk = true;
-      extraPackages = with pkgs; [ foot wmenu swaylock swayidle grim slurp wtype wl-clipboard mako ];
+      extraPackages = with pkgs; [ swaybg foot wmenu swaylock swayidle grim slurp wtype wl-clipboard mako ];
     };
     environment.etc."sway/config.d/antonio.conf".source = swayConfig;
 
@@ -118,6 +119,7 @@ in
     systemd.user.services.antonio-claude-desktop = {
       description = "Área do Claude (compositor separado, com mouse e teclado próprios)";
       partOf = [ "antonio-session.target" ];
+      path = userPath;
       serviceConfig = {
         ExecStart = "${antonio-claude-desktop}/bin/antonio-claude-desktop";
         Restart = "on-failure";
@@ -129,7 +131,9 @@ in
       description = "Antonio agent daemon (Claude Agent SDK)";
       partOf = [ "antonio-session.target" ];
       after = [ "antonio-claude-desktop.service" ];
-      path = with pkgs; [ sway grim wtype foot git coreutils procps systemd nixos-rebuild-ng config.nix.package bash ripgrep findutils gnugrep gnused curl util-linux ];
+      # Programs Claude starts must find everything the user has installed.
+      path = (with pkgs; [ sway grim wtype foot git coreutils procps systemd nixos-rebuild-ng config.nix.package bash ripgrep findutils gnugrep gnused curl util-linux ])
+        ++ userPath;
       environment = {
         ANTONIO_UI_DIR = "${antonio-sidebar}/share/antonio/web";
         ANTONIO_CLAUDE_BIN = lib.getExe pkgs.claude-code;

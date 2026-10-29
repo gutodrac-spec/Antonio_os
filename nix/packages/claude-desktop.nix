@@ -1,4 +1,4 @@
-{ writeShellApplication, writeText, sway, coreutils, background ? "#1c1b19" }:
+{ writeShellApplication, writeText, sway, swaybg, coreutils, bash, background ? "#1c1b19" }:
 
 let
   # Claude's own compositor: headless output, its own seat, nothing shared with the user's input.
@@ -13,7 +13,7 @@ let
 in
 writeShellApplication {
   name = "antonio-claude-desktop";
-  runtimeInputs = [ sway coreutils ];
+  runtimeInputs = [ sway swaybg coreutils bash ];
   text = ''
     dir="''${XDG_RUNTIME_DIR:?}/antonio"
     mkdir -p "$dir"
