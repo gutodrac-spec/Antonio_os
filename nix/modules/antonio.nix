@@ -77,7 +77,8 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [ "claude-code" ];
+    # Runs the Claude Code binary bundled with the Agent SDK (a prebuilt FHS executable).
+    programs.nix-ld.enable = true;
     nix.settings.experimental-features = [ "nix-command" "flakes" ];
     # Keeps the pinned nixpkgs source in the store so /etc/antonio rebuilds work offline.
     nix.registry.nixpkgs.flake = nixpkgs;
@@ -103,7 +104,7 @@ in
       };
     };
 
-    environment.systemPackages = [ antonio-ctl antonio-sidebar pkgs.claude-code pkgs.git pkgs.firefox pkgs.jq ];
+    environment.systemPackages = [ antonio-ctl antonio-sidebar antonio-agentd pkgs.git pkgs.firefox pkgs.jq ];
     fonts.packages = with pkgs; [ inter noto-fonts noto-fonts-color-emoji jetbrains-mono ];
     services.pipewire = { enable = true; pulse.enable = true; };
     networking.networkmanager.enable = true;
@@ -136,7 +137,7 @@ in
         ++ userPath;
       environment = {
         ANTONIO_UI_DIR = "${antonio-sidebar}/share/antonio/web";
-        ANTONIO_CLAUDE_BIN = lib.getExe pkgs.claude-code;
+        ANTONIO_CLAUDE_BIN = "${antonio-agentd}/bin/claude";
         ANTONIO_CONFIG_REPO = repo;
         ANTONIO_CONFIRM_SECONDS = toString cfg.confirmSeconds;
         DISABLE_AUTOUPDATER = "1";

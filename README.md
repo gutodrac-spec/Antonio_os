@@ -17,9 +17,14 @@ Precisa de Nix com flakes.
 # Máquina virtual (login automático; usuário antonio / senha antonio)
 nix run .#vm
 
-# Imagem para pendrive (sistema ao vivo)
-nix build .#iso
+# Imagem ISO (VirtualBox, VMware, QEMU ou pendrive)
+nix build .#iso   # resultado: result/iso/antonio-os.iso
 ```
+
+Sem Nix: em **Actions → ISO → Run workflow** no GitHub, o arquivo `antonio-os.iso` fica disponível para download ao fim da execução.
+
+Para usar a ISO numa máquina virtual: 4 GB de RAM ou mais, 2+ CPUs, vídeo virtio ou VMSVGA e boot UEFI ou BIOS. O sistema entra direto na área de trabalho (usuário `nixos`).
+O Claude Code exige um processador com AVX2: no QEMU/virt-manager use `-cpu host` (ou "copiar configuração da CPU do host"); VirtualBox e VMware já repassam por padrão.
 
 No primeiro uso, abra as configurações da barra lateral (⚙) e clique em **Entrar com a conta Claude** ou cole uma chave de API.
 

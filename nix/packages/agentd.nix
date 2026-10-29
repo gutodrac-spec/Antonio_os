@@ -15,11 +15,14 @@ buildNpmPackage {
     runHook postCheck
   '';
 
-  # The SDK's bundled Claude Code binaries are prebuilt for FHS systems; Antonio OS
-  # points the SDK at nixpkgs' claude-code instead (ANTONIO_CLAUDE_BIN).
+  # The SDK ships Claude Code as a single-file executable that reads its own
+  # payload: it must not be stripped or patched. It runs on NixOS through nix-ld.
+  dontStrip = true;
+  dontPatchELF = true;
   postInstall = ''
-    rm -rf $out/lib/node_modules/antonio-agentd/node_modules/@anthropic-ai/claude-agent-sdk-linux-*
-    rm -rf $out/lib/node_modules/antonio-agentd/dist/test
+    lib=$out/lib/node_modules/antonio-agentd
+    rm -rf $lib/node_modules/@anthropic-ai/claude-agent-sdk-linux-x64-musl $lib/dist/test
+    ln -s $lib/node_modules/@anthropic-ai/claude-agent-sdk-linux-x64/claude $out/bin/claude
   '';
 
   meta = {
